@@ -1,0 +1,3 @@
+-- Crear la base de datos AGENCIA
+CREATE DATABASE IF NOT EXISTS AGENCIA;
+
