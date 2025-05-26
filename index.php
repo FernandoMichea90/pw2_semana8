@@ -45,36 +45,10 @@ $result_reservas = $conn->query($sql_reservas);
     <title>Agencia de Viajes - Dashboard</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
+    <!-- Bootstrap Iconos -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <style>
-        .search-container {
-            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
-            padding: 2rem;
-            border-radius: 10px;
-            color: white;
-            margin-bottom: 2rem;
-        }
-        .search-title {
-            color: white;
-            margin-bottom: 1.5rem;
-        }
-        .form-control {
-            border: none;
-            padding: 0.75rem;
-        }
-        .btn-search {
-            padding: 0.75rem;
-            font-weight: 600;
-            background-color: #ffc107;
-            border: none;
-            color: #000;
-        }
-        .btn-search:hover {
-            background-color: #ffca2c;
-            color: #000;
-        }
-    </style>
+    <link rel="stylesheet" href="estilos.css">
+   
 </head>
 <body>
     <?php include 'navbar.php'; ?>
