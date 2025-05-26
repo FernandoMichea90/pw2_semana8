@@ -1,6 +1,18 @@
 <?php
 require_once 'conexion.php';
 
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $origen = $_POST['origen'];
+    $destino = $_POST['destino'];
+    $fecha = $_POST['fecha'];
+
+    $sql = "SELECT * FROM VUELO WHERE origen = ? AND destino = ? AND DATE(fecha) = ? AND plazas_disponibles > 0";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sss", $origen, $destino, $fecha);
+    $stmt->execute();
+    $resultado_vuelos = $stmt->get_result();
+}
+
 // Consulta para obtener hoteles con más de una reserva
 $sql_hoteles_populares = "
     SELECT h.id_hotel, h.nombre, h.ubicacion, h.tarifa_noche, COUNT(r.id_reserva) as total_reservas
@@ -33,13 +45,85 @@ $result_reservas = $conn->query($sql_reservas);
     <title>Agencia de Viajes - Dashboard</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
+    <!-- Bootstrap Iconos -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="estilos.css">
+   
 </head>
 <body>
     <?php include 'navbar.php'; ?>
 
     <div class="container mt-4">
+        <!-- Buscador de Vuelos -->
+        <div class="search-container">
+            <h2 class="text-center search-title">Encuentra tu próximo vuelo</h2>
+            <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="bi bi-geo-alt"></i></span>
+                            <input type="text" class="form-control" id="origen" name="origen" placeholder="Ciudad de origen" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="bi bi-geo-alt-fill"></i></span>
+                            <input type="text" class="form-control" id="destino" name="destino" placeholder="Ciudad de destino" required>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="bi bi-calendar"></i></span>
+                            <input type="date" class="form-control" id="fecha" name="fecha" required>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <button type="submit" class="btn btn-search w-100">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <?php if (isset($resultado_vuelos) && $resultado_vuelos->num_rows > 0): ?>
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="bi bi-airplane"></i> Vuelos Disponibles</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Origen</th>
+                                    <th>Destino</th>
+                                    <th>Fecha</th>
+                                    <th>Plazas Disponibles</th>
+                                    <th>Precio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while($vuelo = $resultado_vuelos->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($vuelo['origen']); ?></td>
+                                        <td><?php echo htmlspecialchars($vuelo['destino']); ?></td>
+                                        <td><?php echo date('d/m/Y H:i', strtotime($vuelo['fecha'])); ?></td>
+                                        <td><?php echo htmlspecialchars($vuelo['plazas_disponibles']); ?></td>
+                                        <td>$<?php echo number_format($vuelo['precio'], 0, ',', '.'); ?></td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        <?php elseif (isset($resultado_vuelos)): ?>
+            <div class="alert alert-info">
+                No se encontraron vuelos disponibles para los criterios de búsqueda especificados.
+            </div>
+        <?php endif; ?>
+
         <!-- Sección de Hoteles Populares -->
         <div class="row mb-4">
             <div class="col-12">
